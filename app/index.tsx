@@ -1,11 +1,12 @@
-import { StatusBar } from 'expo-status-bar';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Link } from 'expo-router';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
+import { actionStyles, colors } from '../src/styles/access';
 
 export default function HomeScreen() {
   return (
     <SafeAreaView style={styles.screen}>
-      <StatusBar style="dark" />
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.introduction}>
           <Text accessibilityRole="header" style={styles.title}>
@@ -14,6 +15,24 @@ export default function HomeScreen() {
           <Text style={styles.description}>
             Embarque assistido no transporte público para passageiros que precisam de apoio na hora de embarcar.
           </Text>
+          <View style={styles.actions}>
+            <Link href="/login" asChild>
+              <Pressable
+                accessibilityRole="link"
+                style={({ pressed }) => [actionStyles.primary, pressed && actionStyles.pressed]}
+              >
+                <Text style={actionStyles.primaryLabel}>Entrar</Text>
+              </Pressable>
+            </Link>
+            <Link href="/cadastro" asChild>
+              <Pressable
+                accessibilityRole="link"
+                style={({ pressed }) => [actionStyles.secondary, pressed && actionStyles.pressed]}
+              >
+                <Text style={actionStyles.secondaryLabel}>Criar conta de cuidador</Text>
+              </Pressable>
+            </Link>
+          </View>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -23,7 +42,7 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: '#F0F7F4',
+    backgroundColor: colors.background,
   },
   content: {
     flexGrow: 1,
@@ -38,13 +57,17 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   title: {
-    color: '#16382D',
+    color: colors.heading,
     fontSize: 36,
     fontWeight: '700',
   },
   description: {
-    color: '#345348',
+    color: colors.text,
     fontSize: 18,
     lineHeight: 27,
+  },
+  actions: {
+    gap: 12,
+    marginTop: 20,
   },
 });

@@ -1,19 +1,29 @@
 import { Link, type Href } from 'expo-router';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { colors, typography } from '../styles/azulCivico';
 
 type ActionVariant = 'primary' | 'secondary';
 
-export function AzulCivicoButton({ label, onPress }: { label: string; onPress: () => void }) {
+export function AzulCivicoButton({
+  label,
+  onPress,
+  busy = false,
+}: {
+  label: string;
+  onPress: () => void;
+  busy?: boolean;
+}) {
   return (
     <Pressable
       accessibilityLabel={label}
       accessibilityRole="button"
+      accessibilityState={{ busy, disabled: busy }}
+      disabled={busy}
       onPress={onPress}
       style={({ pressed }) => [styles.button, styles.primary, pressed && styles.pressed]}
     >
-      <ActionContent label={label} variant="primary" />
+      <ActionContent label={label} variant="primary" busy={busy} />
     </Pressable>
   );
 }
@@ -23,17 +33,21 @@ export function AzulCivicoLink({
   label,
   replace,
   variant = 'secondary',
+  disabled = false,
 }: {
   href: Href;
   label: string;
   replace?: boolean;
   variant?: ActionVariant;
+  disabled?: boolean;
 }) {
   return (
     <Link href={href} replace={replace} asChild>
       <Pressable
         accessibilityLabel={label}
         accessibilityRole="link"
+        accessibilityState={{ disabled }}
+        disabled={disabled}
         style={({ pressed }) => [styles.button, styles[variant], pressed && styles.pressed]}
       >
         <ActionContent label={label} variant={variant} />
@@ -42,7 +56,15 @@ export function AzulCivicoLink({
   );
 }
 
-function ActionContent({ label, variant }: { label: string; variant: ActionVariant }) {
+function ActionContent({
+  label,
+  variant,
+  busy = false,
+}: {
+  label: string;
+  variant: ActionVariant;
+  busy?: boolean;
+}) {
   const isPrimary = variant === 'primary';
 
   return (
@@ -57,9 +79,13 @@ function ActionContent({ label, variant }: { label: string; variant: ActionVaria
           pointerEvents="none"
           style={styles.arrow}
         >
-          <Text allowFontScaling={false} style={styles.arrowLabel}>
-            →
-          </Text>
+          {busy ? (
+            <ActivityIndicator color={colors.surface} size="small" />
+          ) : (
+            <Text allowFontScaling={false} style={styles.arrowLabel}>
+              →
+            </Text>
+          )}
         </View>
       )}
     </>

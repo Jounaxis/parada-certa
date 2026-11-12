@@ -4,35 +4,52 @@ import { Keyboard, StyleSheet, Text, View } from 'react-native';
 import { AzulCivicoButton, AzulCivicoLink } from '../../components/AzulCivicoAction';
 import { AzulCivicoField } from '../../components/AzulCivicoField';
 import { colors, spacing, typography } from '../../styles/azulCivico';
+import { getAuthErrorMessage } from './authActions';
+import { useSession } from './SessionProvider';
 
 type AccessMode = 'login' | 'registration';
-type Submission = 'idle' | 'invalid' | 'validated';
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/u;
 
 export function AccessForm({ mode }: { mode: AccessMode }) {
   const isRegistration = mode === 'registration';
+  const { busy, login, register } = useSession();
   const [fields, setFields] = useState({ name: '', email: '', password: '' });
-  const [submission, setSubmission] = useState<Submission>('idle');
+  const [submitted, setSubmitted] = useState(false);
+  const [requestError, setRequestError] = useState<string | null>(null);
 
   const nameError = isRegistration && !fields.name.trim() ? 'Informe seu nome.' : undefined;
   const emailError = emailPattern.test(fields.email.trim()) ? undefined : 'Informe um e-mail válido.';
-  const passwordError = fields.password.trim() ? undefined : 'Informe sua senha.';
-  const showErrors = submission === 'invalid';
+  const passwordError = !fields.password.trim()
+    ? 'Informe sua senha.'
+    : isRegistration && fields.password.length < 6
+      ? 'Use pelo menos 6 caracteres.'
+      : undefined;
 
   function updateField(field: keyof typeof fields, value: string) {
     setFields((current) => ({ ...current, [field]: value }));
-    setSubmission((current) => (current === 'validated' ? 'idle' : current));
+    setRequestError(null);
   }
 
-  function handleSubmit() {
-    if (nameError || emailError || passwordError) {
-      setSubmission('invalid');
-      return;
-    }
+  async function handleSubmit() {
+    if (busy) return;
+
+    setSubmitted(true);
+    setRequestError(null);
+    if (nameError || emailError || passwordError) return;
 
     Keyboard.dismiss();
-    setSubmission('validated');
+    const credentials = { email: fields.email.trim(), password: fields.password };
+
+    try {
+      if (isRegistration) {
+        await register({ ...credentials, name: fields.name.trim() });
+      } else {
+        await login(credentials);
+      }
+    } catch (error) {
+      setRequestError(getAuthErrorMessage(error));
+    }
   }
 
   return (
@@ -43,9 +60,10 @@ export function AccessForm({ mode }: { mode: AccessMode }) {
             label="Nome"
             autoCapitalize="words"
             autoComplete="name"
+            editable={!busy}
             value={fields.name}
             onChangeText={(value) => updateField('name', value)}
-            error={showErrors ? nameError : undefined}
+            error={submitted ? nameError : undefined}
           />
         )}
         <AzulCivicoField
@@ -53,33 +71,40 @@ export function AccessForm({ mode }: { mode: AccessMode }) {
           autoCapitalize="none"
           autoComplete="email"
           autoCorrect={false}
+          editable={!busy}
           keyboardType="email-address"
           value={fields.email}
           onChangeText={(value) => updateField('email', value)}
-          error={showErrors ? emailError : undefined}
+          error={submitted ? emailError : undefined}
         />
         <AzulCivicoField
           label="Senha"
           autoCapitalize="none"
           autoComplete={isRegistration ? 'new-password' : 'current-password'}
           autoCorrect={false}
+          editable={!busy}
           secureTextEntry
           returnKeyType="done"
           value={fields.password}
           onChangeText={(value) => updateField('password', value)}
           onSubmitEditing={handleSubmit}
-          error={showErrors ? passwordError : undefined}
+          error={submitted ? passwordError : undefined}
         />
       </View>
-      <AzulCivicoButton label={isRegistration ? 'Criar conta' : 'Entrar'} onPress={handleSubmit} />
-      {submission === 'validated' && (
-        <Text accessibilityLiveRegion="polite" accessibilityRole="alert" style={styles.feedback}>
-          Campos validados. O envio será habilitado após a integração com a API.
+      <AzulCivicoButton
+        label={isRegistration ? 'Criar conta' : 'Entrar'}
+        onPress={handleSubmit}
+        busy={busy}
+      />
+      {requestError && (
+        <Text accessibilityLiveRegion="polite" accessibilityRole="alert" style={styles.error}>
+          {requestError}
         </Text>
       )}
       <AzulCivicoLink
         href={isRegistration ? '/login' : '/cadastro'}
         label={isRegistration ? 'Já tenho conta' : 'Criar conta de cuidador'}
+        disabled={busy}
         replace
       />
     </View>
@@ -94,8 +119,8 @@ const styles = StyleSheet.create({
     gap: spacing.controlGap,
     marginBottom: spacing.sectionGap - spacing.controlGap,
   },
-  feedback: {
+  error: {
     ...typography.message,
-    color: colors.text,
+    color: colors.error,
   },
 });

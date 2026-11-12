@@ -11,6 +11,8 @@ Aplicativo de embarque assistido no transporte público para passageiros que pre
 
 Se o celular não conseguir acessar o servidor pela rede local, pare o servidor com `Ctrl+C`, entre na conta Expo com `npx expo login` e execute `npm start -- --tunnel`. Escaneie o novo QR code.
 
+Para testar cadastro e login, copie `.env.example` para `.env.local`, preencha os valores com a configuração do app Web no Firebase e reinicie o Expo.
+
 ## Verificações
 
 ```sh

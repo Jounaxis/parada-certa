@@ -1,73 +1,34 @@
-import { Link } from 'expo-router';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { StyleSheet, Text, View } from 'react-native';
 
-import { actionStyles, colors } from '../src/styles/access';
+import { AzulCivicoLink } from '../src/components/AzulCivicoAction';
+import { AzulCivicoScreen } from '../src/components/AzulCivicoScreen';
+import { colors, spacing, typography } from '../src/styles/azulCivico';
 
 export default function HomeScreen() {
   return (
-    <SafeAreaView style={styles.screen}>
-      <ScrollView contentContainerStyle={styles.content}>
-        <View style={styles.introduction}>
-          <Text accessibilityRole="header" style={styles.title}>
-            Parada Certa
-          </Text>
-          <Text style={styles.description}>
-            Embarque assistido no transporte público para passageiros que precisam de apoio na hora de embarcar.
-          </Text>
-          <View style={styles.actions}>
-            <Link href="/login" asChild>
-              <Pressable
-                accessibilityRole="link"
-                style={({ pressed }) => [actionStyles.primary, pressed && actionStyles.pressed]}
-              >
-                <Text style={actionStyles.primaryLabel}>Entrar</Text>
-              </Pressable>
-            </Link>
-            <Link href="/cadastro" asChild>
-              <Pressable
-                accessibilityRole="link"
-                style={({ pressed }) => [actionStyles.secondary, pressed && actionStyles.pressed]}
-              >
-                <Text style={actionStyles.secondaryLabel}>Criar conta de cuidador</Text>
-              </Pressable>
-            </Link>
-          </View>
+    <AzulCivicoScreen title="Embarque assistido">
+      <View style={styles.introduction}>
+        <Text style={styles.description}>
+          Apoio no transporte público para quem precisa de ajuda na hora de embarcar.
+        </Text>
+        <View style={styles.actions}>
+          <AzulCivicoLink href="/login" label="Entrar" variant="primary" />
+          <AzulCivicoLink href="/cadastro" label="Criar conta de cuidador" />
         </View>
-      </ScrollView>
-    </SafeAreaView>
+      </View>
+    </AzulCivicoScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  content: {
-    flexGrow: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 24,
-    paddingVertical: 32,
-  },
   introduction: {
-    width: '100%',
-    maxWidth: 420,
-    gap: 12,
-  },
-  title: {
-    color: colors.heading,
-    fontSize: 36,
-    fontWeight: '700',
+    gap: spacing.sectionGap,
   },
   description: {
+    ...typography.body,
     color: colors.text,
-    fontSize: 18,
-    lineHeight: 27,
   },
   actions: {
-    gap: 12,
-    marginTop: 20,
+    gap: spacing.controlGap,
   },
 });

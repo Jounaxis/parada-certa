@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Keyboard, StyleSheet, Text, View } from 'react-native';
 
-import { AzulCivicoButton } from '../src/components/AzulCivicoAction';
+import { AzulCivicoButton, AzulCivicoLink } from '../src/components/AzulCivicoAction';
 import { AzulCivicoField } from '../src/components/AzulCivicoField';
 import { AzulCivicoScreen } from '../src/components/AzulCivicoScreen';
 import { getAuthErrorMessage } from '../src/features/access/authActions';
@@ -69,6 +69,7 @@ export default function CaregiverScreen() {
           </View>
         )}
         {user.email && <Text style={styles.text}>{user.email}</Text>}
+        <AzulCivicoLink href="/passageiros" label="Passageiros" disabled={busy} />
         <AzulCivicoButton label="Sair" onPress={handleLogout} busy={busy} />
         {requestError && (
           <Text accessibilityLiveRegion="polite" accessibilityRole="alert" style={styles.error}>

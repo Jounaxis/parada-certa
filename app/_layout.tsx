@@ -42,6 +42,8 @@ function RootNavigator() {
       </Stack.Protected>
       <Stack.Protected guard={Boolean(user)} redirectTo="/">
         <Stack.Screen name="cuidador" options={{ title: 'Área do Cuidador' }} />
+        <Stack.Screen name="passageiros/index" options={{ title: 'Passageiros' }} />
+        <Stack.Screen name="passageiros/novo" options={{ title: 'Novo passageiro' }} />
       </Stack.Protected>
     </Stack>
   );

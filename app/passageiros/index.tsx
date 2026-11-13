@@ -1,13 +1,12 @@
 import { useIsFocused } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Text, View } from 'react-native';
 
 import { AzulCivicoButton, AzulCivicoLink } from '../../src/components/AzulCivicoAction';
 import { AzulCivicoScreen } from '../../src/components/AzulCivicoScreen';
 import { useSession } from '../../src/features/access/SessionProvider';
 import { passengerNeeds, type Passenger } from '../../src/features/passengers/passenger';
 import { getPassengerErrorMessage, listPassengers } from '../../src/features/passengers/passengerStore';
-import { colors, spacing, typography } from '../../src/styles/azulCivico';
 
 type ListState =
   | { status: 'loading' }
@@ -51,17 +50,17 @@ function PassengerList({ uid }: { uid: string }) {
 
   return (
     <AzulCivicoScreen title="Passageiros" showBack>
-      <View style={styles.content}>
+      <View className="gap-section">
         <AzulCivicoLink href="/passageiros/novo" label="Novo passageiro" variant="primary" />
         {state.status === 'loading' && (
-          <View style={styles.loading}>
-            <ActivityIndicator color={colors.primary} />
-            <Text accessibilityLiveRegion="polite" style={styles.text}>Carregando passageiros…</Text>
+          <View className="flex-row items-center gap-control">
+            <ActivityIndicator colorClassName="accent-civic-primary" />
+            <Text accessibilityLiveRegion="polite" className="shrink text-civic-body text-civic-text">Carregando passageiros…</Text>
           </View>
         )}
         {state.status === 'error' && (
-          <View style={styles.list}>
-            <Text accessibilityRole="alert" accessibilityLiveRegion="polite" style={styles.error}>
+          <View className="gap-control">
+            <Text accessibilityRole="alert" accessibilityLiveRegion="polite" className="text-civic-message text-civic-error">
               {state.message}
             </Text>
             <AzulCivicoButton label="Tentar novamente" onPress={() => setRequest((value) => value + 1)} />
@@ -69,14 +68,14 @@ function PassengerList({ uid }: { uid: string }) {
         )}
         {state.status === 'loaded' && (
           state.passengers.length === 0 ? (
-            <Text accessibilityLiveRegion="polite" style={styles.text}>Nenhum passageiro cadastrado.</Text>
+            <Text accessibilityLiveRegion="polite" className="shrink text-civic-body text-civic-text">Nenhum passageiro cadastrado.</Text>
           ) : (
-            <View style={styles.list}>
+            <View className="gap-control">
               {state.passengers.map((passenger) => (
-                <View key={passenger.id} style={styles.card}>
-                  <Text accessibilityRole="header" style={styles.name}>{passenger.nome}</Text>
-                  <Text style={styles.text}>{passengerNeeds[passenger.tipoNecessidade]}</Text>
-                  <Text style={styles.text}>Contato de emergência: {passenger.contatoEmergencia}</Text>
+                <View key={passenger.id} className="gap-1 rounded-[14px] bg-civic-field p-4">
+                  <Text accessibilityRole="header" className="text-civic-body font-semibold text-civic-text">{passenger.nome}</Text>
+                  <Text className="shrink text-civic-body text-civic-text">{passengerNeeds[passenger.tipoNecessidade]}</Text>
+                  <Text className="shrink text-civic-body text-civic-text">Contato de emergência: {passenger.contatoEmergencia}</Text>
                   <AzulCivicoLink
                     href={{ pathname: '/passageiros/[id]', params: { id: passenger.id } }}
                     label="Editar"
@@ -91,36 +90,3 @@ function PassengerList({ uid }: { uid: string }) {
     </AzulCivicoScreen>
   );
 }
-
-const styles = StyleSheet.create({
-  content: {
-    gap: spacing.sectionGap,
-  },
-  loading: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.controlGap,
-  },
-  list: {
-    gap: spacing.controlGap,
-  },
-  card: {
-    gap: 4,
-    borderRadius: 14,
-    backgroundColor: colors.field,
-    padding: 16,
-  },
-  name: {
-    ...typography.control,
-    color: colors.text,
-  },
-  text: {
-    ...typography.body,
-    flexShrink: 1,
-    color: colors.text,
-  },
-  error: {
-    ...typography.message,
-    color: colors.error,
-  },
-});

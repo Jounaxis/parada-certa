@@ -1,12 +1,16 @@
 import { Link, type Href } from 'expo-router';
 import type { ComponentPropsWithRef } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
-
-import { colors, typography } from '../styles/azulCivico';
+import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 
 type LinkVariant = 'primary' | 'secondary';
 type ButtonVariant = 'primary' | 'danger';
 type ActionVariant = LinkVariant | ButtonVariant;
+
+const buttonVariants = {
+  primary: 'min-h-14 bg-civic-primary px-[52px]',
+  secondary: 'min-h-[52px] bg-civic-secondary px-4',
+  danger: 'min-h-14 bg-civic-error px-[52px]',
+} satisfies Record<ActionVariant, string>;
 
 export function AzulCivicoButton({
   label,
@@ -68,12 +72,11 @@ export function AzulCivicoLink({
 function ActionPressable({
   variant,
   ...props
-}: Omit<ComponentPropsWithRef<typeof Pressable>, 'style'> & { variant: ActionVariant }) {
-  // Link asChild merges styles as objects, so attach the callback after the merge.
+}: Omit<ComponentPropsWithRef<typeof Pressable>, 'className'> & { variant: ActionVariant }) {
   return (
     <Pressable
       {...props}
-      style={({ pressed }) => [styles.button, styles[variant], pressed && styles.pressed]}
+      className={`items-center justify-center rounded-2xl py-3 active:opacity-[0.86] ${buttonVariants[variant]}`}
     />
   );
 }
@@ -91,7 +94,10 @@ function ActionContent({
 
   return (
     <>
-      <Text style={[styles.label, variant === 'secondary' ? styles.secondaryLabel : styles.filledLabel]}>
+      <Text
+        className={`text-center text-civic-body font-semibold
+          ${variant === 'secondary' ? 'text-civic-secondary-text' : 'text-civic-surface'}`}
+      >
         {label}
       </Text>
       {(isPrimary || busy) && (
@@ -99,12 +105,12 @@ function ActionContent({
           accessibilityElementsHidden
           importantForAccessibility="no-hide-descendants"
           pointerEvents="none"
-          style={styles.arrow}
+          className="absolute inset-y-0 right-6 justify-center"
         >
           {busy ? (
-            <ActivityIndicator color={colors.surface} size="small" />
+            <ActivityIndicator colorClassName="accent-civic-surface" size="small" />
           ) : (
-            <Text allowFontScaling={false} style={styles.arrowLabel}>
+            <Text allowFontScaling={false} className="text-[21px]/[24px] font-semibold text-civic-surface">
               →
             </Text>
           )}
@@ -113,52 +119,3 @@ function ActionContent({
     </>
   );
 }
-
-const styles = StyleSheet.create({
-  button: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderRadius: 16,
-  },
-  primary: {
-    minHeight: 56,
-    paddingHorizontal: 52,
-    backgroundColor: colors.primary,
-  },
-  secondary: {
-    minHeight: 52,
-    backgroundColor: colors.secondary,
-  },
-  danger: {
-    minHeight: 56,
-    paddingHorizontal: 52,
-    backgroundColor: colors.error,
-  },
-  label: {
-    ...typography.control,
-    textAlign: 'center',
-  },
-  filledLabel: {
-    color: colors.surface,
-  },
-  secondaryLabel: {
-    color: colors.secondaryText,
-  },
-  arrow: {
-    position: 'absolute',
-    top: 0,
-    right: 24,
-    bottom: 0,
-    justifyContent: 'center',
-  },
-  arrowLabel: {
-    ...typography.control,
-    color: colors.surface,
-    fontSize: 21,
-  },
-  pressed: {
-    opacity: 0.86,
-  },
-});

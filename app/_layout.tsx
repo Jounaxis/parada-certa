@@ -1,9 +1,11 @@
+import '../global.css';
+
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Text, View } from 'react-native';
+import { useResolveClassNames } from 'uniwind';
 
 import { SessionProvider, useSession } from '../src/features/access/SessionProvider';
-import { colors, spacing, typography } from '../src/styles/azulCivico';
 
 export default function RootLayout() {
   return (
@@ -16,12 +18,13 @@ export default function RootLayout() {
 
 function RootNavigator() {
   const { restoring, user } = useSession();
+  const background = useResolveClassNames('bg-civic-header-top');
 
   if (restoring) {
     return (
-      <View style={styles.loading}>
-        <ActivityIndicator color={colors.surface} />
-        <Text accessibilityLiveRegion="polite" style={styles.loadingLabel}>
+      <View className="flex-1 items-center justify-center gap-control bg-civic-header-top">
+        <ActivityIndicator colorClassName="accent-civic-surface" />
+        <Text accessibilityLiveRegion="polite" className="text-civic-body text-civic-surface">
           Carregando sessão…
         </Text>
       </View>
@@ -32,7 +35,7 @@ function RootNavigator() {
     <Stack
       screenOptions={{
         headerShown: false,
-        contentStyle: { backgroundColor: colors.headerTop },
+        contentStyle: background,
       }}
     >
       <Stack.Protected guard={!user} redirectTo="/cuidador">
@@ -50,17 +53,3 @@ function RootNavigator() {
     </Stack>
   );
 }
-
-const styles = StyleSheet.create({
-  loading: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: spacing.controlGap,
-    backgroundColor: colors.headerTop,
-  },
-  loadingLabel: {
-    ...typography.body,
-    color: colors.surface,
-  },
-});

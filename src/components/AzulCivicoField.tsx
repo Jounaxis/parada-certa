@@ -1,7 +1,5 @@
 import { useState } from 'react';
-import { StyleSheet, Text, TextInput, type TextInputProps, View } from 'react-native';
-
-import { colors, typography } from '../styles/azulCivico';
+import { Text, TextInput, type TextInputProps, View } from 'react-native';
 
 export function AzulCivicoField({
   label,
@@ -10,13 +8,14 @@ export function AzulCivicoField({
   onFocus,
   onBlur,
   style,
+  className,
   ...props
 }: TextInputProps & { label: string; error?: string }) {
   const [focused, setFocused] = useState(false);
 
   return (
-    <View style={styles.field}>
-      <Text style={styles.label}>{label}</Text>
+    <View className="gap-2">
+      <Text className="text-civic-body font-semibold text-civic-text">{label}</Text>
       <TextInput
         {...props}
         accessibilityLabel={label}
@@ -30,44 +29,16 @@ export function AzulCivicoField({
           onBlur?.(event);
         }}
         underlineColorAndroid="transparent"
-        style={[styles.input, style, focused && styles.focusedInput, error && styles.invalidInput]}
+        className={`min-h-14 rounded-[14px] border bg-civic-field px-4 py-[15px] text-civic-body text-civic-text
+          ${error ? 'border-civic-error' : focused ? 'border-civic-primary' : 'border-civic-border'}
+          ${className ?? ''}`}
+        style={style}
       />
       {error && (
-        <Text accessibilityLiveRegion="polite" style={styles.error}>
+        <Text accessibilityLiveRegion="polite" className="text-civic-message text-civic-error">
           {error}
         </Text>
       )}
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  field: {
-    gap: 8,
-  },
-  label: {
-    ...typography.control,
-    color: colors.text,
-  },
-  input: {
-    ...typography.body,
-    minHeight: 56,
-    paddingHorizontal: 16,
-    paddingVertical: 15,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 14,
-    backgroundColor: colors.field,
-    color: colors.text,
-  },
-  focusedInput: {
-    borderColor: colors.primary,
-  },
-  invalidInput: {
-    borderColor: colors.error,
-  },
-  error: {
-    ...typography.message,
-    color: colors.error,
-  },
-});

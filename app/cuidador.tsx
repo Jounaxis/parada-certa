@@ -1,12 +1,11 @@
 import { useState } from 'react';
-import { Keyboard, StyleSheet, Text, View } from 'react-native';
+import { Keyboard, Text, View } from 'react-native';
 
 import { AzulCivicoButton, AzulCivicoLink } from '../src/components/AzulCivicoAction';
 import { AzulCivicoField } from '../src/components/AzulCivicoField';
 import { AzulCivicoScreen } from '../src/components/AzulCivicoScreen';
 import { getAuthErrorMessage } from '../src/features/access/authActions';
 import { useSession } from '../src/features/access/SessionProvider';
-import { colors, spacing, typography } from '../src/styles/azulCivico';
 
 export default function CaregiverScreen() {
   const { user, busy, saveName, logout } = useSession();
@@ -49,12 +48,12 @@ export default function CaregiverScreen() {
     <AzulCivicoScreen
       title="Área do Cuidador"
       footer={
-        <View style={styles.footerActions}>
-          <View style={styles.about}>
+        <View className="w-full gap-control">
+          <View className="self-center">
             <AzulCivicoLink href="/sobre" label="Sobre o App" disabled={busy} />
           </View>
           {requestError?.action === 'logout' && (
-            <Text accessibilityLiveRegion="polite" accessibilityRole="alert" style={styles.error}>
+            <Text accessibilityLiveRegion="polite" accessibilityRole="alert" className="text-civic-message text-civic-error">
               {requestError.message}
             </Text>
           )}
@@ -62,12 +61,12 @@ export default function CaregiverScreen() {
         </View>
       }
     >
-      <View style={styles.content}>
+      <View className="gap-control">
         {user.name ? (
-          <Text style={styles.greeting}>Olá, {user.name}.</Text>
+          <Text className="text-civic-body font-semibold text-civic-text">Olá, {user.name}.</Text>
         ) : (
-          <View style={styles.nameForm}>
-            <Text style={styles.text}>Informe seu nome para concluir o cadastro.</Text>
+          <View className="gap-control">
+            <Text className="text-civic-body text-civic-text">Informe seu nome para concluir o cadastro.</Text>
             <AzulCivicoField
               label="Nome"
               autoCapitalize="words"
@@ -85,43 +84,15 @@ export default function CaregiverScreen() {
             />
             <AzulCivicoButton label="Salvar nome" onPress={handleSaveName} busy={busy} />
             {requestError?.action === 'saveName' && (
-              <Text accessibilityLiveRegion="polite" accessibilityRole="alert" style={styles.error}>
+              <Text accessibilityLiveRegion="polite" accessibilityRole="alert" className="text-civic-message text-civic-error">
                 {requestError.message}
               </Text>
             )}
           </View>
         )}
-        {user.email && <Text style={styles.text}>{user.email}</Text>}
+        {user.email && <Text className="text-civic-body text-civic-text">{user.email}</Text>}
         <AzulCivicoLink href="/passageiros" label="Passageiros" variant="primary" disabled={busy} />
       </View>
     </AzulCivicoScreen>
   );
 }
-
-const styles = StyleSheet.create({
-  content: {
-    gap: spacing.controlGap,
-  },
-  footerActions: {
-    width: '100%',
-    gap: spacing.controlGap,
-  },
-  about: {
-    alignSelf: 'center',
-  },
-  nameForm: {
-    gap: spacing.controlGap,
-  },
-  greeting: {
-    ...typography.control,
-    color: colors.text,
-  },
-  text: {
-    ...typography.body,
-    color: colors.text,
-  },
-  error: {
-    ...typography.message,
-    color: colors.error,
-  },
-});

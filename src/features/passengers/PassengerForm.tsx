@@ -1,9 +1,8 @@
 import { useRef, useState } from 'react';
-import { Alert, Keyboard, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Alert, Keyboard, Pressable, Text, View } from 'react-native';
 
 import { AzulCivicoButton } from '../../components/AzulCivicoAction';
 import { AzulCivicoField } from '../../components/AzulCivicoField';
-import { colors, spacing, typography } from '../../styles/azulCivico';
 import { passengerNeeds, type PassengerInput, type PassengerNeed } from './passenger';
 import { getPassengerErrorMessage } from './passengerStore';
 
@@ -82,7 +81,7 @@ export function PassengerForm({ initialValues, onSave, onDelete }: PassengerForm
   }
 
   return (
-    <View style={styles.form}>
+    <View className="gap-control">
       <AzulCivicoField
         label="Nome do passageiro"
         autoCapitalize="words"
@@ -95,9 +94,9 @@ export function PassengerForm({ initialValues, onSave, onDelete }: PassengerForm
         }}
         error={submitted ? nameError : undefined}
       />
-      <View style={styles.needGroup}>
-        <Text style={styles.label}>Tipo de necessidade</Text>
-        <View accessibilityRole="radiogroup" style={styles.options}>
+      <View className="gap-2">
+        <Text className="text-civic-body font-semibold text-civic-text">Tipo de necessidade</Text>
+        <View accessibilityRole="radiogroup" className="gap-2">
           {needs.map((value) => {
             const checked = need === value;
             const label = passengerNeeds[value];
@@ -113,22 +112,23 @@ export function PassengerForm({ initialValues, onSave, onDelete }: PassengerForm
                   setNeed(value);
                   setRequestError(undefined);
                 }}
-                style={({ pressed }) => [
-                  styles.option,
-                  checked && styles.selectedOption,
-                  pressed && styles.pressedOption,
-                ]}
+                className={`civic-option
+                  ${checked ? 'border-civic-primary bg-civic-secondary' : 'border-civic-border bg-civic-field'}`}
               >
-                <View accessible={false} style={[styles.radio, checked && styles.selectedRadio]}>
-                  {checked && <View style={styles.radioDot} />}
+                <View
+                  accessible={false}
+                  className={`size-5 items-center justify-center rounded-full border-2
+                    ${checked ? 'border-civic-primary' : 'border-civic-border'}`}
+                >
+                  {checked && <View className="size-2 rounded-full bg-civic-primary" />}
                 </View>
-                <Text style={styles.optionLabel}>{label}</Text>
+                <Text className="shrink text-civic-body text-civic-text">{label}</Text>
               </Pressable>
             );
           })}
         </View>
         {submitted && needError && (
-          <Text accessibilityLiveRegion="polite" style={styles.error}>
+          <Text accessibilityLiveRegion="polite" className="text-civic-message text-civic-error">
             {needError}
           </Text>
         )}
@@ -146,9 +146,9 @@ export function PassengerForm({ initialValues, onSave, onDelete }: PassengerForm
         error={submitted ? contactError : undefined}
       />
       {!isEditing && (
-        <View style={styles.needGroup}>
-          <Text style={styles.label}>Consentimento</Text>
-          <Text style={styles.note}>
+        <View className="gap-2">
+          <Text className="text-civic-body font-semibold text-civic-text">Consentimento</Text>
+          <Text className="text-civic-message text-civic-text">
             O Parada Certa armazena nome, tipo de necessidade e contato de emergência na sua conta para organizar o embarque assistido.
           </Text>
           <Pressable
@@ -159,19 +159,20 @@ export function PassengerForm({ initialValues, onSave, onDelete }: PassengerForm
               setConsent((current) => !current);
               setRequestError(undefined);
             }}
-            style={({ pressed }) => [
-              styles.option,
-              consent && styles.selectedOption,
-              pressed && styles.pressedOption,
-            ]}
+            className={`civic-option
+              ${consent ? 'border-civic-primary bg-civic-secondary' : 'border-civic-border bg-civic-field'}`}
           >
-            <View accessible={false} style={[styles.checkbox, consent && styles.selectedRadio]}>
-              {consent && <View style={styles.radioDot} />}
+            <View
+              accessible={false}
+              className={`size-5 items-center justify-center rounded border-2
+                ${consent ? 'border-civic-primary' : 'border-civic-border'}`}
+            >
+              {consent && <View className="size-2 rounded-full bg-civic-primary" />}
             </View>
-            <Text style={styles.optionLabel}>Confirmo que tenho autorização para cadastrar esses dados.</Text>
+            <Text className="shrink text-civic-body text-civic-text">Confirmo que tenho autorização para cadastrar esses dados.</Text>
           </Pressable>
           {submitted && consentError && (
-            <Text accessibilityLiveRegion="polite" style={styles.error}>{consentError}</Text>
+            <Text accessibilityLiveRegion="polite" className="text-civic-message text-civic-error">{consentError}</Text>
           )}
         </View>
       )}
@@ -191,85 +192,10 @@ export function PassengerForm({ initialValues, onSave, onDelete }: PassengerForm
         />
       )}
       {requestError && (
-        <Text accessibilityLiveRegion="polite" accessibilityRole="alert" style={styles.error}>
+        <Text accessibilityLiveRegion="polite" accessibilityRole="alert" className="text-civic-message text-civic-error">
           {requestError}
         </Text>
       )}
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  form: {
-    gap: spacing.controlGap,
-  },
-  needGroup: {
-    gap: 8,
-  },
-  options: {
-    gap: 8,
-  },
-  option: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.controlGap,
-    minHeight: 48,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.field,
-  },
-  selectedOption: {
-    borderColor: colors.primary,
-    backgroundColor: colors.secondary,
-  },
-  pressedOption: {
-    opacity: 0.86,
-  },
-  radio: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    borderWidth: 2,
-    borderColor: colors.border,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  selectedRadio: {
-    borderColor: colors.primary,
-  },
-  checkbox: {
-    width: 20,
-    height: 20,
-    borderRadius: 4,
-    borderWidth: 2,
-    borderColor: colors.border,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  radioDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: colors.primary,
-  },
-  label: {
-    ...typography.control,
-    color: colors.text,
-  },
-  optionLabel: {
-    ...typography.body,
-    flexShrink: 1,
-    color: colors.text,
-  },
-  note: {
-    ...typography.message,
-    color: colors.text,
-  },
-  error: {
-    ...typography.message,
-    color: colors.error,
-  },
-});

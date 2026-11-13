@@ -1,6 +1,6 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Text, View } from 'react-native';
 
 import { AzulCivicoButton } from '../../src/components/AzulCivicoAction';
 import { AzulCivicoScreen } from '../../src/components/AzulCivicoScreen';
@@ -13,7 +13,6 @@ import {
   getPassengerErrorMessage,
   updatePassenger,
 } from '../../src/features/passengers/passengerStore';
-import { colors, spacing, typography } from '../../src/styles/azulCivico';
 
 type EditState =
   | { status: 'loading' }
@@ -85,16 +84,16 @@ function PassengerEditor({ uid, id }: { uid: string; id: string | undefined }) {
 
   return (
     <AzulCivicoScreen title="Editar passageiro" showBack>
-      <View style={styles.content}>
+      <View className="gap-control">
         {state.status === 'loading' && (
-          <View style={styles.loading}>
-            <ActivityIndicator color={colors.primary} />
-            <Text accessibilityLiveRegion="polite" style={styles.text}>Carregando passageiro…</Text>
+          <View className="flex-row items-center gap-control">
+            <ActivityIndicator colorClassName="accent-civic-primary" />
+            <Text accessibilityLiveRegion="polite" className="shrink text-civic-body text-civic-text">Carregando passageiro…</Text>
           </View>
         )}
         {state.status === 'missing' && (
           <>
-            <Text accessibilityLiveRegion="polite" style={styles.text}>
+            <Text accessibilityLiveRegion="polite" className="shrink text-civic-body text-civic-text">
               Este passageiro não está disponível na sua conta.
             </Text>
             <AzulCivicoButton label="Voltar para passageiros" onPress={backToPassengers} />
@@ -102,7 +101,7 @@ function PassengerEditor({ uid, id }: { uid: string; id: string | undefined }) {
         )}
         {state.status === 'error' && (
           <>
-            <Text accessibilityRole="alert" accessibilityLiveRegion="polite" style={styles.error}>
+            <Text accessibilityRole="alert" accessibilityLiveRegion="polite" className="text-civic-message text-civic-error">
               {state.message}
             </Text>
             <AzulCivicoButton label="Tentar novamente" onPress={retry} />
@@ -119,23 +118,3 @@ function PassengerEditor({ uid, id }: { uid: string; id: string | undefined }) {
     </AzulCivicoScreen>
   );
 }
-
-const styles = StyleSheet.create({
-  content: {
-    gap: spacing.controlGap,
-  },
-  loading: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.controlGap,
-  },
-  text: {
-    ...typography.body,
-    flexShrink: 1,
-    color: colors.text,
-  },
-  error: {
-    ...typography.message,
-    color: colors.error,
-  },
-});

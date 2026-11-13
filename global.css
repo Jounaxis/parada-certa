@@ -1,0 +1,34 @@
+@import 'tailwindcss';
+@import 'uniwind';
+
+@theme static {
+  --color-civic-header-top: #15366c;
+  --color-civic-header-bottom: #23529b;
+  --color-civic-surface: #ffffff;
+  --color-civic-text: #17263f;
+  --color-civic-brand-ink: #edf4ff;
+  --color-civic-back: #29518c;
+  --color-civic-field: #f6f8fc;
+  --color-civic-border: #74839b;
+  --color-civic-primary: #174ba8;
+  --color-civic-secondary: #eaf2ff;
+  --color-civic-secondary-text: #214c92;
+  --color-civic-error: #a1293e;
+
+  --spacing-control: 12px;
+  --spacing-section: 28px;
+  --spacing-gutter: 24px;
+  --spacing-panel: 420px;
+  --spacing-header: 468px;
+
+  --text-civic-body: 17px;
+  --text-civic-body--line-height: 24px;
+  --text-civic-message: 15px;
+  --text-civic-message--line-height: 21px;
+  --text-civic-brand: 18px;
+  --text-civic-brand--line-height: 24px;
+}
+
+@utility civic-option {
+  @apply min-h-12 flex-row items-center gap-control rounded-[14px] border px-3.5 py-2.5 active:opacity-[0.86];
+}

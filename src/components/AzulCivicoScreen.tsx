@@ -1,9 +1,10 @@
 import { useRouter } from 'expo-router';
 import type { ReactNode } from 'react';
-import { Image, Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { Image, Pressable, ScrollView, Text, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { withUniwind } from 'uniwind';
 
-import { colors, spacing, typography } from '../styles/azulCivico';
+const StyledSafeAreaView = withUniwind(SafeAreaView);
 
 export function AzulCivicoScreen({
   title,
@@ -33,176 +34,68 @@ export function AzulCivicoScreen({
   return (
     <ScrollView
       automaticallyAdjustKeyboardInsets
-      contentContainerStyle={styles.content}
+      contentContainerClassName="grow bg-civic-header-bottom"
       contentInsetAdjustmentBehavior="never"
       keyboardShouldPersistTaps="handled"
-      style={styles.screen}
+      className="flex-1 bg-civic-header-top"
     >
-      <SafeAreaView edges={['top', 'left', 'right']} style={styles.header}>
+      <StyledSafeAreaView
+        edges={['top', 'left', 'right']}
+        className="overflow-hidden bg-civic-header-top bg-linear-to-b from-civic-header-top to-civic-header-bottom"
+      >
         {showRoutes && (
           <Image
             accessible={false}
             importantForAccessibility="no"
             source={require('../../assets/azul-civico/trajetos.png')}
-            style={styles.routes}
+            className="absolute right-0 bottom-[11px] h-[180px] w-[132px]"
           />
         )}
         <View
-          style={[
-            styles.headerContent,
-            !showBack && styles.headerWithoutBack,
-            compact && styles.compactHeaderContent,
-            showRoutes && styles.headerWithRoutes,
-          ]}
+          className={`w-full max-w-header self-center pl-gutter
+            ${showBack ? 'pt-1' : 'pt-gutter'}
+            ${compact ? 'gap-3.5 pb-[18px]' : 'gap-[22px] pb-[30px]'}
+            ${showRoutes ? 'pr-[140px]' : 'pr-gutter'}`}
         >
           {showBack && (
             <Pressable
               accessibilityLabel="Voltar"
               accessibilityRole="button"
               onPress={goBack}
-              style={({ pressed }) => [styles.back, pressed && styles.pressed]}
+              className="min-h-12 min-w-12 flex-row items-center gap-2 self-start rounded-3xl bg-civic-back px-3 py-2 active:opacity-[0.86]"
             >
-              <Text accessible={false} allowFontScaling={false} style={styles.backArrow}>
+              <Text accessible={false} allowFontScaling={false} className="text-[21px]/[24px] font-semibold text-civic-surface">
                 ←
               </Text>
-              <Text style={styles.backLabel}>Voltar</Text>
+              <Text className="shrink text-civic-body font-semibold text-civic-surface">Voltar</Text>
             </Pressable>
           )}
-          <View style={styles.brand}>
+          <View className="flex-row items-center gap-control">
             <Image
               accessible={false}
               importantForAccessibility="no"
               source={require('../../assets/azul-civico/onibus.png')}
-              style={styles.brandIcon}
+              className="size-11"
             />
-            <Text style={styles.brandLabel}>Parada Certa</Text>
+            <Text className="shrink text-civic-brand font-semibold text-civic-brand-ink">Parada Certa</Text>
           </View>
           <Text
             accessibilityRole="header"
-            style={[styles.title, width < 380 && styles.narrowTitle, compact && styles.compactTitle]}
+            className={`font-bold text-civic-surface
+              ${width < 380 ? 'text-[40px]/[48px]' : 'text-[44px]/[52px]'}
+              ${compact ? 'mt-0' : 'mt-[3px]'}`}
           >
             {title}
           </Text>
         </View>
-      </SafeAreaView>
-      <SafeAreaView edges={['left', 'right', 'bottom']} style={styles.panel}>
-        <View style={styles.panelContent}>{children}</View>
-        {footer && <View style={[styles.panelContent, styles.footer]}>{footer}</View>}
-      </SafeAreaView>
+      </StyledSafeAreaView>
+      <StyledSafeAreaView
+        edges={['left', 'right', 'bottom']}
+        className="grow items-center rounded-t-[28px] bg-civic-surface px-gutter pt-[34px] pb-8"
+      >
+        <View className="w-full max-w-panel">{children}</View>
+        {footer && <View className="mt-auto w-full max-w-panel items-center pt-section">{footer}</View>}
+      </StyledSafeAreaView>
     </ScrollView>
   );
 }
-
-const routesWidth = 132;
-
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: colors.headerTop,
-  },
-  content: {
-    flexGrow: 1,
-    backgroundColor: colors.headerBottom,
-  },
-  header: {
-    backgroundColor: colors.headerTop,
-    backgroundImage: `linear-gradient(180deg, ${colors.headerTop}, ${colors.headerBottom})`,
-    overflow: 'hidden',
-  },
-  headerContent: {
-    alignSelf: 'center',
-    width: '100%',
-    maxWidth: spacing.maxContentWidth + spacing.gutter * 2,
-    gap: 22,
-    paddingHorizontal: spacing.gutter,
-    paddingTop: 4,
-    paddingBottom: 30,
-  },
-  headerWithoutBack: {
-    paddingTop: spacing.gutter,
-  },
-  compactHeaderContent: {
-    gap: 14,
-    paddingBottom: 18,
-  },
-  headerWithRoutes: {
-    paddingRight: routesWidth + 8,
-  },
-  back: {
-    alignSelf: 'flex-start',
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    minWidth: 48,
-    minHeight: 48,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 24,
-    backgroundColor: colors.back,
-  },
-  backLabel: {
-    ...typography.control,
-    flexShrink: 1,
-    color: colors.surface,
-  },
-  backArrow: {
-    ...typography.control,
-    color: colors.surface,
-    fontSize: 21,
-  },
-  routes: {
-    position: 'absolute',
-    right: 0,
-    bottom: 11,
-    width: routesWidth,
-    height: 180,
-  },
-  brand: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.controlGap,
-  },
-  brandIcon: {
-    width: 44,
-    height: 44,
-  },
-  brandLabel: {
-    ...typography.brand,
-    flexShrink: 1,
-    color: colors.brand,
-  },
-  title: {
-    ...typography.title,
-    marginTop: 3,
-    color: colors.surface,
-  },
-  narrowTitle: {
-    fontSize: 40,
-    lineHeight: 48,
-  },
-  compactTitle: {
-    marginTop: 0,
-  },
-  panel: {
-    flexGrow: 1,
-    alignItems: 'center',
-    paddingHorizontal: spacing.gutter,
-    paddingTop: 34,
-    paddingBottom: 32,
-    borderTopLeftRadius: 28,
-    borderTopRightRadius: 28,
-    backgroundColor: colors.surface,
-  },
-  panelContent: {
-    width: '100%',
-    maxWidth: spacing.maxContentWidth,
-  },
-  footer: {
-    alignItems: 'center',
-    marginTop: 'auto',
-    paddingTop: spacing.sectionGap,
-  },
-  pressed: {
-    opacity: 0.86,
-  },
-});

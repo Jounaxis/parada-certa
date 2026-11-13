@@ -1,9 +1,8 @@
 import { useState } from 'react';
-import { Keyboard, StyleSheet, Text, View } from 'react-native';
+import { Keyboard, Text, View } from 'react-native';
 
 import { AzulCivicoButton, AzulCivicoLink } from '../../components/AzulCivicoAction';
 import { AzulCivicoField } from '../../components/AzulCivicoField';
-import { colors, spacing, typography } from '../../styles/azulCivico';
 import { getAuthErrorMessage } from './authActions';
 import { useSession } from './SessionProvider';
 
@@ -53,8 +52,8 @@ export function AccessForm({ mode }: { mode: AccessMode }) {
   }
 
   return (
-    <View style={styles.form}>
-      <View style={styles.fields}>
+    <View className="gap-control">
+      <View className="mb-4 gap-control">
         {isRegistration && (
           <AzulCivicoField
             label="Nome"
@@ -97,7 +96,7 @@ export function AccessForm({ mode }: { mode: AccessMode }) {
         busy={busy}
       />
       {requestError && (
-        <Text accessibilityLiveRegion="polite" accessibilityRole="alert" style={styles.error}>
+        <Text accessibilityLiveRegion="polite" accessibilityRole="alert" className="text-civic-message text-civic-error">
           {requestError}
         </Text>
       )}
@@ -110,17 +109,3 @@ export function AccessForm({ mode }: { mode: AccessMode }) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  form: {
-    gap: spacing.controlGap,
-  },
-  fields: {
-    gap: spacing.controlGap,
-    marginBottom: spacing.sectionGap - spacing.controlGap,
-  },
-  error: {
-    ...typography.message,
-    color: colors.error,
-  },
-});

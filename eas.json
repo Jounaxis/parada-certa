@@ -1,0 +1,15 @@
+{
+  "cli": {
+    "requireCommit": true,
+    "appVersionSource": "local"
+  },
+  "build": {
+    "entrega": {
+      "distribution": "internal",
+      "environment": "preview",
+      "android": {
+        "buildType": "apk"
+      }
+    }
+  }
+}

@@ -6,7 +6,10 @@ import { colors, spacing, typography } from '../src/styles/azulCivico';
 
 export default function HomeScreen() {
   return (
-    <AzulCivicoScreen title="Embarque assistido">
+    <AzulCivicoScreen
+      title="Embarque assistido"
+      footer={<AzulCivicoLink href="/sobre" label="Sobre o App" />}
+    >
       <View style={styles.introduction}>
         <Text style={styles.description}>
           Apoio no transporte público para quem precisa de ajuda na hora de embarcar.

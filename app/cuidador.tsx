@@ -12,7 +12,10 @@ export default function CaregiverScreen() {
   const { user, busy, saveName, logout } = useSession();
   const [name, setName] = useState('');
   const [nameError, setNameError] = useState<string>();
-  const [requestError, setRequestError] = useState<string | null>(null);
+  const [requestError, setRequestError] = useState<{
+    action: 'saveName' | 'logout';
+    message: string;
+  } | null>(null);
 
   if (!user) return null;
 
@@ -28,7 +31,7 @@ export default function CaregiverScreen() {
     try {
       await saveName(name.trim());
     } catch (error) {
-      setRequestError(getAuthErrorMessage(error));
+      setRequestError({ action: 'saveName', message: getAuthErrorMessage(error) });
     }
   }
 
@@ -38,12 +41,27 @@ export default function CaregiverScreen() {
     try {
       await logout();
     } catch (error) {
-      setRequestError(getAuthErrorMessage(error));
+      setRequestError({ action: 'logout', message: getAuthErrorMessage(error) });
     }
   }
 
   return (
-    <AzulCivicoScreen title="Área do Cuidador">
+    <AzulCivicoScreen
+      title="Área do Cuidador"
+      footer={
+        <View style={styles.footerActions}>
+          <View style={styles.about}>
+            <AzulCivicoLink href="/sobre" label="Sobre o App" disabled={busy} />
+          </View>
+          {requestError?.action === 'logout' && (
+            <Text accessibilityLiveRegion="polite" accessibilityRole="alert" style={styles.error}>
+              {requestError.message}
+            </Text>
+          )}
+          <AzulCivicoButton label="Sair" onPress={handleLogout} busy={busy} />
+        </View>
+      }
+    >
       <View style={styles.content}>
         {user.name ? (
           <Text style={styles.greeting}>Olá, {user.name}.</Text>
@@ -66,16 +84,15 @@ export default function CaregiverScreen() {
               error={nameError}
             />
             <AzulCivicoButton label="Salvar nome" onPress={handleSaveName} busy={busy} />
+            {requestError?.action === 'saveName' && (
+              <Text accessibilityLiveRegion="polite" accessibilityRole="alert" style={styles.error}>
+                {requestError.message}
+              </Text>
+            )}
           </View>
         )}
         {user.email && <Text style={styles.text}>{user.email}</Text>}
-        <AzulCivicoLink href="/passageiros" label="Passageiros" disabled={busy} />
-        <AzulCivicoButton label="Sair" onPress={handleLogout} busy={busy} />
-        {requestError && (
-          <Text accessibilityLiveRegion="polite" accessibilityRole="alert" style={styles.error}>
-            {requestError}
-          </Text>
-        )}
+        <AzulCivicoLink href="/passageiros" label="Passageiros" variant="primary" disabled={busy} />
       </View>
     </AzulCivicoScreen>
   );
@@ -84,6 +101,13 @@ export default function CaregiverScreen() {
 const styles = StyleSheet.create({
   content: {
     gap: spacing.controlGap,
+  },
+  footerActions: {
+    width: '100%',
+    gap: spacing.controlGap,
+  },
+  about: {
+    alignSelf: 'center',
   },
   nameForm: {
     gap: spacing.controlGap,

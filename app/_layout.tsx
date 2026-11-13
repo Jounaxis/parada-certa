@@ -46,6 +46,7 @@ function RootNavigator() {
         <Stack.Screen name="passageiros/novo" options={{ title: 'Novo passageiro' }} />
         <Stack.Screen name="passageiros/[id]" options={{ title: 'Editar passageiro' }} />
       </Stack.Protected>
+      <Stack.Screen name="sobre" options={{ title: 'Sobre o App' }} />
     </Stack>
   );
 }

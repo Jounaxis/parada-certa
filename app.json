@@ -4,6 +4,9 @@
     "slug": "parada-certa",
     "version": "0.1.0",
     "scheme": "parada-certa",
+    "android": {
+      "package": "com.jounaxis.paradacerta"
+    },
     "plugins": ["expo-router"]
   }
 }

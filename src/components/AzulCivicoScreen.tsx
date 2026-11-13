@@ -8,10 +8,12 @@ import { colors, spacing, typography } from '../styles/azulCivico';
 export function AzulCivicoScreen({
   title,
   children,
+  footer,
   showBack = false,
 }: {
   title: string;
   children: ReactNode;
+  footer?: ReactNode;
   showBack?: boolean;
 }) {
   const router = useRouter();
@@ -85,6 +87,7 @@ export function AzulCivicoScreen({
       </SafeAreaView>
       <SafeAreaView edges={['left', 'right', 'bottom']} style={styles.panel}>
         <View style={styles.panelContent}>{children}</View>
+        {footer && <View style={[styles.panelContent, styles.footer]}>{footer}</View>}
       </SafeAreaView>
     </ScrollView>
   );
@@ -193,6 +196,11 @@ const styles = StyleSheet.create({
   panelContent: {
     width: '100%',
     maxWidth: spacing.maxContentWidth,
+  },
+  footer: {
+    alignItems: 'center',
+    marginTop: 'auto',
+    paddingTop: spacing.sectionGap,
   },
   pressed: {
     opacity: 0.86,

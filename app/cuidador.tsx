@@ -47,6 +47,7 @@ export default function CaregiverScreen() {
   return (
     <AzulCivicoScreen
       title="Área do Cuidador"
+      compactHeader
       footer={
         <View className="w-full gap-control">
           <View className="self-center">
@@ -61,37 +62,44 @@ export default function CaregiverScreen() {
         </View>
       }
     >
-      <View className="gap-control">
-        {user.name ? (
-          <Text className="text-civic-body font-semibold text-civic-text">Olá, {user.name}.</Text>
-        ) : (
-          <View className="gap-control">
-            <Text className="text-civic-body text-civic-text">Informe seu nome para concluir o cadastro.</Text>
-            <AzulCivicoField
-              label="Nome"
-              autoCapitalize="words"
-              autoComplete="name"
-              editable={!busy}
-              returnKeyType="done"
-              value={name}
-              onChangeText={(value) => {
-                setName(value);
-                setNameError(undefined);
-                setRequestError(null);
-              }}
-              onSubmitEditing={handleSaveName}
-              error={nameError}
-            />
-            <AzulCivicoButton label="Salvar nome" onPress={handleSaveName} busy={busy} />
-            {requestError?.action === 'saveName' && (
-              <Text accessibilityLiveRegion="polite" accessibilityRole="alert" className="text-civic-message text-civic-error">
-                {requestError.message}
-              </Text>
-            )}
-          </View>
-        )}
-        {user.email && <Text className="text-civic-body text-civic-text">{user.email}</Text>}
-        <AzulCivicoLink href="/passageiros" label="Passageiros" variant="primary" disabled={busy} />
+      <View className="gap-section">
+        <View className="gap-1">
+          {user.name ? (
+            <Text className="text-civic-body font-semibold text-civic-text">Olá, {user.name}.</Text>
+          ) : (
+            <View className="gap-control">
+              <Text className="text-civic-body text-civic-text">Informe seu nome para concluir o cadastro.</Text>
+              <AzulCivicoField
+                label="Nome"
+                autoCapitalize="words"
+                autoComplete="name"
+                editable={!busy}
+                returnKeyType="done"
+                value={name}
+                onChangeText={(value) => {
+                  setName(value);
+                  setNameError(undefined);
+                  setRequestError(null);
+                }}
+                onSubmitEditing={handleSaveName}
+                error={nameError}
+              />
+              <AzulCivicoButton label="Salvar nome" onPress={handleSaveName} busy={busy} />
+              {requestError?.action === 'saveName' && (
+                <Text accessibilityLiveRegion="polite" accessibilityRole="alert" className="text-civic-message text-civic-error">
+                  {requestError.message}
+                </Text>
+              )}
+            </View>
+          )}
+          {user.email && <Text className="text-civic-message text-civic-text">{user.email}</Text>}
+        </View>
+        <View className="gap-control">
+          <Text className="text-civic-body text-civic-text">
+            Cadastre e atualize os dados de quem você acompanha.
+          </Text>
+          <AzulCivicoLink href="/passageiros" label="Passageiros" variant="primary" disabled={busy} />
+        </View>
       </View>
     </AzulCivicoScreen>
   );

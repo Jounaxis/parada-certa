@@ -48,14 +48,17 @@ function PassengerList({ uid }: { uid: string }) {
     };
   }, [isFocused, uid, request]);
 
+  const isEmpty = state.status === 'loaded' && state.passengers.length === 0;
+
   return (
-    <AzulCivicoScreen title="Passageiros" showBack>
+    <AzulCivicoScreen title="Passageiros" compactHeader showBack>
       <View className="gap-section">
-        <AzulCivicoLink href="/passageiros/novo" label="Novo passageiro" variant="primary" />
         {state.status === 'loading' && (
           <View className="flex-row items-center gap-control">
             <ActivityIndicator colorClassName="accent-civic-primary" />
-            <Text accessibilityLiveRegion="polite" className="shrink text-civic-body text-civic-text">Carregando passageiros…</Text>
+            <Text accessibilityLiveRegion="polite" className="shrink text-civic-body text-civic-text">
+              Buscando seus passageiros…
+            </Text>
           </View>
         )}
         {state.status === 'error' && (
@@ -66,25 +69,41 @@ function PassengerList({ uid }: { uid: string }) {
             <AzulCivicoButton label="Tentar novamente" onPress={() => setRequest((value) => value + 1)} />
           </View>
         )}
-        {state.status === 'loaded' && (
-          state.passengers.length === 0 ? (
-            <Text accessibilityLiveRegion="polite" className="shrink text-civic-body text-civic-text">Nenhum passageiro cadastrado.</Text>
-          ) : (
-            <View className="gap-control">
-              {state.passengers.map((passenger) => (
-                <View key={passenger.id} className="gap-1 rounded-[14px] bg-civic-field p-4">
-                  <Text accessibilityRole="header" className="text-civic-body font-semibold text-civic-text">{passenger.nome}</Text>
-                  <Text className="shrink text-civic-body text-civic-text">{passengerNeeds[passenger.tipoNecessidade]}</Text>
-                  <Text className="shrink text-civic-body text-civic-text">Contato de emergência: {passenger.contatoEmergencia}</Text>
+        <View className="gap-control">
+          {isEmpty && (
+            <Text accessibilityLiveRegion="polite" className="text-civic-body text-civic-text">
+              Cadastre a primeira pessoa que você acompanha.
+            </Text>
+          )}
+          <AzulCivicoLink
+            href="/passageiros/novo"
+            label="Novo passageiro"
+            variant={state.status === 'error' ? 'secondary' : 'primary'}
+          />
+        </View>
+        {state.status === 'loaded' && !isEmpty && (
+          <View className="gap-control">
+            {state.passengers.map((passenger) => (
+              <View key={passenger.id} className="gap-control rounded-[14px] bg-civic-field p-4">
+                <Text accessibilityRole="header" className="text-[20px]/[28px] font-bold text-civic-text">
+                  {passenger.nome}
+                </Text>
+                <View className="gap-1">
+                  <Text className="text-civic-body text-civic-text">{passengerNeeds[passenger.tipoNecessidade]}</Text>
+                  <Text className="text-civic-body text-civic-text">
+                    <Text className="font-semibold">Contato de emergência:</Text> {passenger.contatoEmergencia}
+                  </Text>
+                </View>
+                <View className="self-start">
                   <AzulCivicoLink
                     href={{ pathname: '/passageiros/[id]', params: { id: passenger.id } }}
                     label="Editar"
                     accessibilityLabel={`Editar passageiro ${passenger.nome}`}
                   />
                 </View>
-              ))}
-            </View>
-          )
+              </View>
+            ))}
+          </View>
         )}
       </View>
     </AzulCivicoScreen>

@@ -10,17 +10,26 @@ export function AzulCivicoScreen({
   title,
   children,
   footer,
+  compactHeader = false,
   showBack = false,
 }: {
   title: string;
   children: ReactNode;
   footer?: ReactNode;
+  compactHeader?: boolean;
   showBack?: boolean;
 }) {
   const router = useRouter();
   const { width, height, fontScale } = useWindowDimensions();
-  const compact = height < 660;
-  const showRoutes = width >= 375 && fontScale <= 1.05 && !compact;
+  const shortScreen = height < 660;
+  const showRoutes = width >= 375 && fontScale <= 1.05 && !shortScreen && !compactHeader;
+  const headerSpacing = shortScreen ? 'gap-3.5' : 'gap-[22px]';
+  const headerPadding = compactHeader
+    ? 'pt-2 pb-5'
+    : `${showBack ? 'pt-1' : 'pt-gutter'} ${shortScreen ? 'pb-[18px]' : 'pb-[30px]'}`;
+  const titleSize = compactHeader
+    ? 'text-[32px]/[40px]'
+    : width < 380 ? 'text-[40px]/[48px]' : 'text-[44px]/[52px]';
 
   function goBack() {
     if (router.canGoBack()) {
@@ -53,37 +62,37 @@ export function AzulCivicoScreen({
         )}
         <View
           className={`w-full max-w-header self-center pl-gutter
-            ${showBack ? 'pt-1' : 'pt-gutter'}
-            ${compact ? 'gap-3.5 pb-[18px]' : 'gap-[22px] pb-[30px]'}
+            ${compactHeader ? 'gap-2' : headerSpacing} ${headerPadding}
             ${showRoutes ? 'pr-[140px]' : 'pr-gutter'}`}
         >
-          {showBack && (
-            <Pressable
-              accessibilityLabel="Voltar"
-              accessibilityRole="button"
-              onPress={goBack}
-              className="min-h-12 min-w-12 flex-row items-center gap-2 self-start rounded-3xl bg-civic-back px-3 py-2 active:opacity-[0.86]"
-            >
-              <Text accessible={false} allowFontScaling={false} className="text-[21px]/[24px] font-semibold text-civic-surface">
-                ←
-              </Text>
-              <Text className="shrink text-civic-body font-semibold text-civic-surface">Voltar</Text>
-            </Pressable>
-          )}
-          <View className="flex-row items-center gap-control">
-            <Image
-              accessible={false}
-              importantForAccessibility="no"
-              source={require('../../assets/azul-civico/onibus.png')}
-              className="size-11"
-            />
-            <Text className="shrink text-civic-brand font-semibold text-civic-brand-ink">Parada Certa</Text>
+          <View className={compactHeader ? 'flex-row flex-wrap items-center gap-x-4 gap-y-2' : headerSpacing}>
+            {showBack && (
+              <Pressable
+                accessibilityLabel="Voltar"
+                accessibilityRole="button"
+                onPress={goBack}
+                className={`min-h-12 min-w-12 flex-row items-center gap-2 rounded-3xl bg-civic-back px-3 py-2 active:opacity-[0.86]
+                  ${compactHeader ? 'max-w-full' : 'self-start'}`}
+              >
+                <Text accessible={false} allowFontScaling={false} className="text-[21px]/[24px] font-semibold text-civic-surface">
+                  ←
+                </Text>
+                <Text className="shrink text-civic-body font-semibold text-civic-surface">Voltar</Text>
+              </Pressable>
+            )}
+            <View className="max-w-full flex-row items-center gap-control">
+              <Image
+                accessible={false}
+                importantForAccessibility="no"
+                source={require('../../assets/azul-civico/onibus.png')}
+                className={compactHeader ? 'size-8' : 'size-11'}
+              />
+              <Text className="shrink text-civic-brand font-semibold text-civic-brand-ink">Parada Certa</Text>
+            </View>
           </View>
           <Text
             accessibilityRole="header"
-            className={`font-bold text-civic-surface
-              ${width < 380 ? 'text-[40px]/[48px]' : 'text-[44px]/[52px]'}
-              ${compact ? 'mt-0' : 'mt-[3px]'}`}
+            className={`font-bold text-civic-surface ${titleSize} ${compactHeader || shortScreen ? 'mt-0' : 'mt-[3px]'}`}
           >
             {title}
           </Text>
@@ -91,7 +100,8 @@ export function AzulCivicoScreen({
       </StyledSafeAreaView>
       <StyledSafeAreaView
         edges={['left', 'right', 'bottom']}
-        className="grow items-center rounded-t-[28px] bg-civic-surface px-gutter pt-[34px] pb-8"
+        className={`grow items-center rounded-t-[28px] bg-civic-surface px-gutter pb-8
+          ${compactHeader ? 'pt-6' : 'pt-[34px]'}`}
       >
         <View className="w-full max-w-panel">{children}</View>
         {footer && <View className="mt-auto w-full max-w-panel items-center pt-section">{footer}</View>}

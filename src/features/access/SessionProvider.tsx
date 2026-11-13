@@ -12,7 +12,7 @@ import { createContext, useContext, useEffect, useRef, useState, type ReactNode 
 import { registerCaregiver, type CaregiverRegistration, type Credentials } from './authActions';
 import { firebaseAuth } from './firebase';
 
-type SessionUser = { name: string | null; email: string | null };
+type SessionUser = { uid: string; name: string | null; email: string | null };
 type Operation = 'registration' | 'request';
 
 type Session = {
@@ -28,7 +28,7 @@ type Session = {
 const SessionContext = createContext<Session | null>(null);
 
 function readUser(user: User | null): SessionUser | null {
-  return user ? { name: user.displayName, email: user.email } : null;
+  return user ? { uid: user.uid, name: user.displayName, email: user.email } : null;
 }
 
 export function SessionProvider({ children }: { children: ReactNode }) {

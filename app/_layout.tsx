@@ -44,6 +44,7 @@ function RootNavigator() {
         <Stack.Screen name="cuidador" options={{ title: 'Área do Cuidador' }} />
         <Stack.Screen name="passageiros/index" options={{ title: 'Passageiros' }} />
         <Stack.Screen name="passageiros/novo" options={{ title: 'Novo passageiro' }} />
+        <Stack.Screen name="passageiros/[id]" options={{ title: 'Editar passageiro' }} />
       </Stack.Protected>
     </Stack>
   );

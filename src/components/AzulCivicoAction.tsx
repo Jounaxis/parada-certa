@@ -1,58 +1,80 @@
 import { Link, type Href } from 'expo-router';
+import type { ComponentPropsWithRef } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { colors, typography } from '../styles/azulCivico';
 
-type ActionVariant = 'primary' | 'secondary';
+type LinkVariant = 'primary' | 'secondary';
+type ButtonVariant = 'primary' | 'danger';
+type ActionVariant = LinkVariant | ButtonVariant;
 
 export function AzulCivicoButton({
   label,
   onPress,
   busy = false,
+  disabled = false,
+  variant = 'primary',
 }: {
   label: string;
   onPress: () => void;
   busy?: boolean;
+  disabled?: boolean;
+  variant?: ButtonVariant;
 }) {
   return (
-    <Pressable
+    <ActionPressable
       accessibilityLabel={label}
       accessibilityRole="button"
-      accessibilityState={{ busy, disabled: busy }}
-      disabled={busy}
+      accessibilityState={{ busy, disabled: busy || disabled }}
+      disabled={busy || disabled}
       onPress={onPress}
-      style={({ pressed }) => [styles.button, styles.primary, pressed && styles.pressed]}
+      variant={variant}
     >
-      <ActionContent label={label} variant="primary" busy={busy} />
-    </Pressable>
+      <ActionContent label={label} variant={variant} busy={busy} />
+    </ActionPressable>
   );
 }
 
 export function AzulCivicoLink({
   href,
   label,
+  accessibilityLabel = label,
   replace,
   variant = 'secondary',
   disabled = false,
 }: {
   href: Href;
   label: string;
+  accessibilityLabel?: string;
   replace?: boolean;
-  variant?: ActionVariant;
+  variant?: LinkVariant;
   disabled?: boolean;
 }) {
   return (
     <Link href={href} replace={replace} asChild>
-      <Pressable
-        accessibilityLabel={label}
+      <ActionPressable
+        accessibilityLabel={accessibilityLabel}
         accessibilityRole="link"
         accessibilityState={{ disabled }}
         disabled={disabled}
-        style={({ pressed }) => [styles.button, styles[variant], pressed && styles.pressed]}
+        variant={variant}
       >
         <ActionContent label={label} variant={variant} />
-      </Pressable>
+      </ActionPressable>
     </Link>
+  );
+}
+
+function ActionPressable({
+  variant,
+  ...props
+}: Omit<ComponentPropsWithRef<typeof Pressable>, 'style'> & { variant: ActionVariant }) {
+  // Link asChild merges styles as objects, so attach the callback after the merge.
+  return (
+    <Pressable
+      {...props}
+      style={({ pressed }) => [styles.button, styles[variant], pressed && styles.pressed]}
+    />
   );
 }
 
@@ -69,10 +91,10 @@ function ActionContent({
 
   return (
     <>
-      <Text style={[styles.label, isPrimary ? styles.primaryLabel : styles.secondaryLabel]}>
+      <Text style={[styles.label, variant === 'secondary' ? styles.secondaryLabel : styles.filledLabel]}>
         {label}
       </Text>
-      {isPrimary && (
+      {(isPrimary || busy) && (
         <View
           accessibilityElementsHidden
           importantForAccessibility="no-hide-descendants"
@@ -109,11 +131,16 @@ const styles = StyleSheet.create({
     minHeight: 52,
     backgroundColor: colors.secondary,
   },
+  danger: {
+    minHeight: 56,
+    paddingHorizontal: 52,
+    backgroundColor: colors.error,
+  },
   label: {
     ...typography.control,
     textAlign: 'center',
   },
-  primaryLabel: {
+  filledLabel: {
     color: colors.surface,
   },
   secondaryLabel: {

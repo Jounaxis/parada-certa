@@ -1,0 +1,39 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "cuidadores": {
+      "$uid": {
+        "passageiros": {
+          ".read": "auth != null && auth.uid === $uid",
+          ".indexOn": ["criadoEm"],
+          "$passageiroId": {
+            ".write": "auth != null && auth.uid === $uid",
+            ".validate": "newData.hasChildren(['nome', 'tipoNecessidade', 'contatoEmergencia', 'consentimentoEm', 'versaoTermo', 'criadoEm'])",
+            "nome": {
+              ".validate": "newData.isString() && newData.val().length <= 120 && newData.val().matches(/[!-\u007e\u00a1-\uffff]/)"
+            },
+            "tipoNecessidade": {
+              ".validate": "newData.val() === 'CADEIRA_DE_RODAS' || newData.val() === 'BAIXA_VISAO' || newData.val() === 'MOBILIDADE_REDUZIDA' || newData.val() === 'IDOSO'"
+            },
+            "contatoEmergencia": {
+              ".validate": "newData.isString() && newData.val().length <= 40 && newData.val().matches(/[!-\u007e\u00a1-\uffff]/)"
+            },
+            "consentimentoEm": {
+              ".validate": "newData.isNumber() && (data.exists() ? newData.val() === data.val() : newData.val() === now)"
+            },
+            "versaoTermo": {
+              ".validate": "data.exists() ? newData.val() === data.val() : newData.val() === '1'"
+            },
+            "criadoEm": {
+              ".validate": "newData.isNumber() && (data.exists() ? newData.val() === data.val() : newData.val() === now)"
+            },
+            "$outroCampo": {
+              ".validate": false
+            }
+          }
+        }
+      }
+    }
+  }
+}

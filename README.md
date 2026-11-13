@@ -13,6 +13,8 @@ Se o celular não conseguir acessar o servidor pela rede local, pare o servidor 
 
 Para testar cadastro e login, copie `.env.example` para `.env.local`, preencha os valores com a configuração do app Web no Firebase e reinicie o Expo.
 
+Para cadastrar e listar passageiros, preencha também `EXPO_PUBLIC_FIREBASE_DATABASE_URL` com a URL da instância exibida em **Realtime Database → Dados** no Console do Firebase.
+
 ## Verificações
 
 ```sh

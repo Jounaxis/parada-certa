@@ -5,3 +5,4 @@ expo-env.d.ts
 *.tsbuildinfo
 npm-debug.log*
 .env*.local
+firebase-debug.log*

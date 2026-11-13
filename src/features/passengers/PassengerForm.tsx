@@ -1,74 +1,117 @@
-import { useState } from 'react';
-import { Keyboard, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useRef, useState } from 'react';
+import { Alert, Keyboard, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { AzulCivicoButton } from '../../components/AzulCivicoAction';
 import { AzulCivicoField } from '../../components/AzulCivicoField';
 import { colors, spacing, typography } from '../../styles/azulCivico';
+import { passengerNeeds, type PassengerInput, type PassengerNeed } from './passenger';
+import { getPassengerErrorMessage } from './passengerStore';
 
-const needs = [
-  { value: 'CADEIRA_DE_RODAS', label: 'Cadeira de rodas' },
-  { value: 'BAIXA_VISAO', label: 'Baixa visão' },
-  { value: 'MOBILIDADE_REDUZIDA', label: 'Mobilidade reduzida' },
-  { value: 'IDOSO', label: 'Idoso' },
-] as const;
+const needs = Object.keys(passengerNeeds) as PassengerNeed[];
 
-type Need = (typeof needs)[number]['value'];
-type Validation = 'idle' | 'invalid' | 'valid';
+type PassengerFormProps = {
+  onSave: (input: PassengerInput) => Promise<void>;
+} & (
+  | { initialValues?: undefined; onDelete?: undefined }
+  | { initialValues: PassengerInput; onDelete: () => Promise<void> }
+);
 
-export function PassengerForm() {
-  const [name, setName] = useState('');
-  const [need, setNeed] = useState<Need | null>(null);
-  const [emergencyContact, setEmergencyContact] = useState('');
-  const [validation, setValidation] = useState<Validation>('idle');
+export function PassengerForm({ initialValues, onSave, onDelete }: PassengerFormProps) {
+  const isEditing = initialValues !== undefined;
+  const [name, setName] = useState(initialValues?.nome ?? '');
+  const [need, setNeed] = useState<PassengerNeed | null>(initialValues?.tipoNecessidade ?? null);
+  const [emergencyContact, setEmergencyContact] = useState(initialValues?.contatoEmergencia ?? '');
+  const [consent, setConsent] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [operation, setOperation] = useState<'save' | 'delete' | null>(null);
+  const operationInProgress = useRef(false);
+  const [requestError, setRequestError] = useState<string>();
+  const busy = operation !== null;
 
   const nameError = name.trim() ? undefined : 'Informe o nome do passageiro.';
   const needError = need ? undefined : 'Selecione o tipo de necessidade.';
   const contactError = emergencyContact.trim() ? undefined : 'Informe o contato de emergência.';
-  const showErrors = validation === 'invalid';
+  const consentError = isEditing || consent ? undefined : 'Confirme o consentimento para continuar.';
 
-  function clearValidFeedback() {
-    setValidation((current) => (current === 'valid' ? 'idle' : current));
+  async function run(kind: 'save' | 'delete', action: () => Promise<void>, errorMessage: string) {
+    if (operationInProgress.current) return;
+    operationInProgress.current = true;
+    setOperation(kind);
+    setRequestError(undefined);
+    Keyboard.dismiss();
+
+    try {
+      await action();
+    } catch (error) {
+      setRequestError(getPassengerErrorMessage(error, errorMessage));
+    } finally {
+      operationInProgress.current = false;
+      setOperation(null);
+    }
   }
 
-  function validate() {
-    if (nameError || needError || contactError) {
-      setValidation('invalid');
-      return;
-    }
+  function submit() {
+    setSubmitted(true);
+    setRequestError(undefined);
+    if (nameError || !need || contactError || consentError) return;
+
+    const input = { nome: name.trim(), tipoNecessidade: need, contatoEmergencia: emergencyContact.trim() };
+    const errorMessage = isEditing
+      ? 'Não foi possível salvar as alterações. Tente novamente.'
+      : 'Não foi possível cadastrar o passageiro. Tente novamente.';
+
+    void run('save', () => onSave(input), errorMessage);
+  }
+
+  function confirmDeletion() {
+    if (!initialValues || !onDelete || operationInProgress.current) return;
 
     Keyboard.dismiss();
-    setValidation('valid');
+    Alert.alert(
+      'Excluir passageiro?',
+      `O cadastro de ${initialValues.nome} será excluído da sua conta. Esta ação é permanente.`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Excluir',
+          style: 'destructive',
+          onPress: () => void run('delete', onDelete, 'Não foi possível excluir o passageiro. Tente novamente.'),
+        },
+      ],
+    );
   }
 
   return (
     <View style={styles.form}>
-      <Text style={styles.body}>Use dados fictícios para testar este formulário.</Text>
       <AzulCivicoField
         label="Nome do passageiro"
         autoCapitalize="words"
         maxLength={120}
+        editable={!busy}
         value={name}
         onChangeText={(value) => {
           setName(value);
-          clearValidFeedback();
+          setRequestError(undefined);
         }}
-        error={showErrors ? nameError : undefined}
+        error={submitted ? nameError : undefined}
       />
       <View style={styles.needGroup}>
         <Text style={styles.label}>Tipo de necessidade</Text>
         <View accessibilityRole="radiogroup" style={styles.options}>
-          {needs.map(({ value, label }) => {
+          {needs.map((value) => {
             const checked = need === value;
+            const label = passengerNeeds[value];
 
             return (
               <Pressable
                 key={value}
                 accessibilityLabel={label}
                 accessibilityRole="radio"
-                accessibilityState={{ checked }}
+                accessibilityState={{ checked, disabled: busy }}
+                disabled={busy}
                 onPress={() => {
                   setNeed(value);
-                  clearValidFeedback();
+                  setRequestError(undefined);
                 }}
                 style={({ pressed }) => [
                   styles.option,
@@ -84,7 +127,7 @@ export function PassengerForm() {
             );
           })}
         </View>
-        {showErrors && needError && (
+        {submitted && needError && (
           <Text accessibilityLiveRegion="polite" style={styles.error}>
             {needError}
           </Text>
@@ -94,20 +137,62 @@ export function PassengerForm() {
         label="Contato de emergência"
         keyboardType="phone-pad"
         maxLength={40}
+        editable={!busy}
         value={emergencyContact}
         onChangeText={(value) => {
           setEmergencyContact(value);
-          clearValidFeedback();
+          setRequestError(undefined);
         }}
-        error={showErrors ? contactError : undefined}
+        error={submitted ? contactError : undefined}
       />
-      <Text style={styles.note}>
-        O cadastro definitivo também exigirá a leitura e o aceite do termo de consentimento.
-      </Text>
-      <AzulCivicoButton label="Verificar campos" onPress={validate} />
-      {validation === 'valid' && (
-        <Text accessibilityLiveRegion="polite" accessibilityRole="alert" style={styles.body}>
-          Campos validados. A gravação depende da integração com a API.
+      {!isEditing && (
+        <View style={styles.needGroup}>
+          <Text style={styles.label}>Consentimento</Text>
+          <Text style={styles.note}>
+            O Parada Certa armazena nome, tipo de necessidade e contato de emergência na sua conta para organizar o embarque assistido.
+          </Text>
+          <Pressable
+            accessibilityRole="checkbox"
+            accessibilityState={{ checked: consent, disabled: busy }}
+            disabled={busy}
+            onPress={() => {
+              setConsent((current) => !current);
+              setRequestError(undefined);
+            }}
+            style={({ pressed }) => [
+              styles.option,
+              consent && styles.selectedOption,
+              pressed && styles.pressedOption,
+            ]}
+          >
+            <View accessible={false} style={[styles.checkbox, consent && styles.selectedRadio]}>
+              {consent && <View style={styles.radioDot} />}
+            </View>
+            <Text style={styles.optionLabel}>Confirmo que tenho autorização para cadastrar esses dados.</Text>
+          </Pressable>
+          {submitted && consentError && (
+            <Text accessibilityLiveRegion="polite" style={styles.error}>{consentError}</Text>
+          )}
+        </View>
+      )}
+      <AzulCivicoButton
+        label={isEditing ? 'Salvar alterações' : 'Cadastrar passageiro'}
+        onPress={submit}
+        busy={operation === 'save'}
+        disabled={busy}
+      />
+      {isEditing && (
+        <AzulCivicoButton
+          label="Excluir passageiro"
+          onPress={confirmDeletion}
+          busy={operation === 'delete'}
+          disabled={busy}
+          variant="danger"
+        />
+      )}
+      {requestError && (
+        <Text accessibilityLiveRegion="polite" accessibilityRole="alert" style={styles.error}>
+          {requestError}
         </Text>
       )}
     </View>
@@ -155,6 +240,15 @@ const styles = StyleSheet.create({
   selectedRadio: {
     borderColor: colors.primary,
   },
+  checkbox: {
+    width: 20,
+    height: 20,
+    borderRadius: 4,
+    borderWidth: 2,
+    borderColor: colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   radioDot: {
     width: 8,
     height: 8,
@@ -168,10 +262,6 @@ const styles = StyleSheet.create({
   optionLabel: {
     ...typography.body,
     flexShrink: 1,
-    color: colors.text,
-  },
-  body: {
-    ...typography.body,
     color: colors.text,
   },
   note: {
